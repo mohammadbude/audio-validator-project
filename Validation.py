@@ -66,7 +66,7 @@ class AudioValidator:
         fft = np.abs(librosa.stft(y))
         freqs = librosa.fft_frequencies(sr=sr)
 
-        bass_band = fft[(freqs >= 20) & (freqs <= 250)]
+        bass_band = fft[(freqs >= 20) & (freqs <= 200)] # changed from 250 to 200 
         return bass_band.mean()
 
     def detect_treble_energy(self):
@@ -81,7 +81,7 @@ class AudioValidator:
     def detect_clipping(self):
         y, sr = self.load_audio()
 
-        clipped_samples = np.sum(np.abs(y) >= 0.99)
+        clipped_samples = np.sum(np.abs(y) >= 1)   # chnaged teh threshold to 1 
         return clipped_samples
 
     def detect_reverb(self):
@@ -89,6 +89,14 @@ class AudioValidator:
 
         energy = y ** 2
         return energy.mean()
+        
+    def rms_cal(self):  # added rms and db calculation 
+        y , sr = self.load_audio()
+        
+        rms_linear = np.sqrt(np.mean(y **2)
+        rms_db = 20 * np.log10(rms_linear)
+        
+        return rms_linear , rms_db
 
     def full_report(self):
         report = {
